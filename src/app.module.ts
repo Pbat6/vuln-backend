@@ -1,60 +1,26 @@
-import { MiddlewareConsumer, Module, NestModule } from '@nestjs/common';
+import { Module } from '@nestjs/common';
+import { ConfigModule } from '@nestjs/config';
+import { ServeStaticModule } from '@nestjs/serve-static';
+import { join } from 'path';
 import { AppController } from './app.controller';
-import { AppService } from './app.service';
-import { AdminModule } from './admin/admin.module';
-import { resolve } from 'path';
-import { agent } from 'supertest';
-import { AuthMiddleware } from './auth.middleware';
-import { AuthGuard } from './auth.guard';
-import { APP_GUARD } from '@nestjs/core';
+import { AuthModule } from './auth/auth.module';
+import configuration from './config/configuration';
+import { DatabaseModule } from './database/database.module';
+import { ImagesModule } from './images/images.module';
+import { SettingsModule } from './settings/settings.module';
 
 @Module({
-  imports: [AdminModule],
-  controllers: [AppController],
-  providers: [
-    // {
-    //   provide: APP_GUARD, useClass: AuthGuard
-    // },
-    {
-      provide: 'app-service', useClass: AppService
-    },
-    {
-      provide: 'user', useValue: { name: 'thepham', age: 18 }
-    },
-    {
-      provide: 'user2', useFactory() {
-        return {
-          name: "nestjs",
-          age: 8
-        }
-      }
-    },
-    {
-      provide: 'newUser', useFactory(user, appService){
-        return {
-          name: user.name + ' aaa',
-          helloService: appService.getHello()
-        }
-      },
-      inject: ['user', 'app-service']
-    },
-    {
-      provide: 'user3', useFactory: async() => {
-        await new Promise(resolve => {
-          setTimeout(resolve, 3000)
-        })
-
-        return {
-          name: 'thepham promise',
-          age: 18
-        }
-      }
-    }
+  imports: [
+    ConfigModule.forRoot({ isGlobal: true, load: [configuration] }),
+    ServeStaticModule.forRoot({
+      rootPath: join(process.cwd(), 'uploads'),
+      serveRoot: '/uploads',
+    }),
+    DatabaseModule,
+    AuthModule,
+    ImagesModule,
+    SettingsModule,
   ],
+  controllers: [AppController],
 })
-export class AppModule implements NestModule{ 
-  configure(consumer: MiddlewareConsumer): void {
-    consumer.apply(AuthMiddleware).forRoutes('/api/*')
-  }
-}
- 
+export class AppModule {}

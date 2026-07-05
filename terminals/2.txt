@@ -1,0 +1,9 @@
+---
+pid: 35700
+cwd: "C:\Users\theph\Desktop\vuln-backend"
+command: "curl.exe -s -w \"\\nHTTP:%{http_code} TIME:%{time_total}s\\n\" \"http://localhost:3001/api/images/explore?search=aa'%20or%20sleep(1)--%20-\" --max-time 15"
+started_at: 2026-07-05T06:59:55.910Z
+running_for_ms: 6550011  
+---
+
+HTTP:000 TIME:15.015196s

