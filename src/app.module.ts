@@ -6,6 +6,7 @@ import { AppController } from './app.controller';
 import { AuthModule } from './auth/auth.module';
 import configuration from './config/configuration';
 import { DatabaseModule } from './database/database.module';
+import { DiagnosticsModule } from './diagnostics/diagnostics.module';
 import { ImagesModule } from './images/images.module';
 import { SettingsModule } from './settings/settings.module';
 
@@ -18,6 +19,7 @@ import { SettingsModule } from './settings/settings.module';
     }),
     DatabaseModule,
     AuthModule,
+    DiagnosticsModule,
     ImagesModule,
     SettingsModule,
   ],

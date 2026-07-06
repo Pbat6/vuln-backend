@@ -1,4 +1,4 @@
-import { IsOptional, IsString } from 'class-validator';
+import { IsNotEmpty, IsOptional, IsString } from 'class-validator';
 
 export class SearchImageDto {
   @IsOptional()
@@ -7,6 +7,20 @@ export class SearchImageDto {
 }
 
 export class UploadImageDto {
+  @IsOptional()
+  @IsString()
+  title?: string;
+
+  @IsOptional()
+  @IsString()
+  description?: string;
+}
+
+export class SaveExploreImageDto {
+  @IsString()
+  @IsNotEmpty()
+  picsum_id: string;
+
   @IsOptional()
   @IsString()
   title?: string;

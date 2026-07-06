@@ -13,6 +13,7 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
     private readonly configService: ConfigService,
     private readonly usersService: UsersService,
   ) {
+
     super({
       jwtFromRequest: ExtractJwt.fromAuthHeaderAsBearerToken(),
       ignoreExpiration: false,
@@ -42,7 +43,7 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
               join(
                 process.cwd(),
                 configService.get<string>('jwt.publicKeyPath') ??
-                  'keys/public.pem',
+                'keys/public.pem',
               ),
               'utf8',
             ),

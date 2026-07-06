@@ -15,14 +15,16 @@ import {
 import { AuthGuard } from '@nestjs/passport';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { diskStorage } from 'multer';
-import { join } from 'path';
 import { CurrentUser } from '../common/decorators/current-user.decorator';
 import {
   EditImageDto,
+  SaveExploreImageDto,
   SearchImageDto,
   UploadImageDto,
 } from './dto/images.dto';
-import { ImagesService } from './images.service';
+import { ImagesService, validateUploadExtension } from './images.service';
+import { randomUUID } from 'crypto';
+import { extname, join } from 'path';
 
 @Controller('images')
 export class ImagesController {
@@ -45,6 +47,15 @@ export class ImagesController {
   }
 
   @UseGuards(AuthGuard('jwt'))
+  @Post('explore/save')
+  saveFromExplore(
+    @CurrentUser('id') userId: number,
+    @Body() dto: SaveExploreImageDto,
+  ) {
+    return this.imagesService.saveFromExplore(userId, dto);
+  }
+
+  @UseGuards(AuthGuard('jwt'))
   @Get('my')
   searchMy(
     @CurrentUser('id') userId: number,
@@ -57,6 +68,14 @@ export class ImagesController {
   @Post('upload')
   @UseInterceptors(
     FileInterceptor('file', {
+      fileFilter: (_req, file, cb) => {
+        try {
+          validateUploadExtension(file.originalname);
+          cb(null, true);
+        } catch (error) {
+          cb(error as Error, false);
+        }
+      },
       storage: diskStorage({
         destination: (_req, _file, cb) =>
           cb(null, join(process.cwd(), 'uploads')),
@@ -64,6 +83,28 @@ export class ImagesController {
       }),
     }),
   )
+  
+  // @UseInterceptors(
+  //   FileInterceptor('file', {
+  //     limits: { fileSize: 2 * 1024 * 1024 }, // 2MB
+  //     fileFilter: (_req, file, cb) => {
+  //       try {
+  //         validateUploadExtension(file.originalname);
+  //         cb(null, true);
+  //       } catch (error) {
+  //         cb(error as Error, false);
+  //       }
+  //     },
+  //     storage: diskStorage({
+  //       destination: (_req, _file, cb) =>
+  //         cb(null, join(process.cwd(), 'uploads')),
+  //       filename: (_req, file, cb) => {
+  //         const ext = extname(file.originalname).toLowerCase();
+  //         cb(null, `${randomUUID()}${ext}`);
+  //       },
+  //     }),
+  //   }),
+  // )
   upload(
     @CurrentUser('id') userId: number,
     @UploadedFile() file: Express.Multer.File,

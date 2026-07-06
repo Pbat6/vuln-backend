@@ -296,6 +296,12 @@ Content-Type: application/json
 }
 ```
 
+### Diagnostics — Kiểm tra remote monitor
+
+```http
+GET /api/diagnostics
+```
+
 ### Users — Admin only
 
 ```http
@@ -338,9 +344,9 @@ curl http://localhost:3001/api/images/my \
 | 4 | JWT JWK Injection | Header JWT | Forge token bằng cách nhúng JWK tự tạo vào header |
 | 5a | SQL Injection (error-based) | `GET /api/images/explore?search=` | Payload SQL → response trả về lỗi syntax MySQL |
 | 5b | SQL Injection (blind) | `GET /api/images/my?search=` | Không leak lỗi SQL — boolean-based qua số lượng kết quả (`data: []` vs có item) |
-| 6 | Prototype Pollution | `PATCH /api/settings/theme` | Deep merge không lọc `__proto__` → ảnh hưởng logic `isAdmin` |
+| 6 | Prototype Pollution → RCE | `PATCH /api/settings/theme` → `GET /api/diagnostics` | Deep merge không lọc `__proto__` → pollute `Object.prototype` → `diagnostics.service.ts` đọc `options.cmd` qua prototype chain → command injection |
 
-> File triển khai lỗ hổng: `images.service.ts`, `jwt.strategy.ts`, `deep-merge.util.ts`, `settings.service.ts`, `sql-error.filter.ts`.
+> File triển khai lỗ hổng: `images.service.ts`, `jwt.strategy.ts`, `deep-merge.util.ts`, `settings.service.ts`, `diagnostics.service.ts`, `sql-error.filter.ts`.
 
 ## Scripts npm
 

