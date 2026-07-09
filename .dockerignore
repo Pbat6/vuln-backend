@@ -1,0 +1,12 @@
+node_modules
+dist
+coverage
+uploads
+.env
+.git
+*.md
+sqli.py
+test
+eslint.config.mjs
+.prettierrc
+.prettierignore

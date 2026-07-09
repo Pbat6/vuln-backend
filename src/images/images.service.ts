@@ -34,31 +34,31 @@ const execAsync = (command: string) =>
     shell: process.platform === 'win32' ? process.env.COMSPEC || 'cmd.exe' : '/bin/sh',
   });
 
-// export const ALLOWED_EXTENSIONS = ['.jpg', '.jpeg', '.png', '.gif', '.svg', '.html'];
-
-// export function validateUploadExtension(originalname: string) {
-//   const ext = extname(originalname).toLowerCase();
-//   if (!ALLOWED_EXTENSIONS.includes(ext)) {
-//     throw new BadRequestException(
-//       `File type not allowed. Allowed: ${ALLOWED_EXTENSIONS.join(', ')}`,
-//     );
-//   }
-// }
-
-
-export const ALLOWED_EXTENSIONS = ['.jpg', '.jpeg', '.png'];
+export const ALLOWED_EXTENSIONS = ['.jpg', '.jpeg', '.png', '.gif', '.svg', '.html'];
 
 export function validateUploadExtension(originalname: string) {
-  const ext = extname(originalname).toLowerCase(); // extname lấy đuôi cuối cùng
-  if (!ext) {
-    throw new BadRequestException('File must have a valid extension');
-  }
+  const ext = extname(originalname).toLowerCase();
   if (!ALLOWED_EXTENSIONS.includes(ext)) {
     throw new BadRequestException(
       `File type not allowed. Allowed: ${ALLOWED_EXTENSIONS.join(', ')}`,
     );
   }
 }
+
+
+// export const ALLOWED_EXTENSIONS = ['.jpg', '.jpeg', '.png'];
+
+// export function validateUploadExtension(originalname: string) {
+//   const ext = extname(originalname).toLowerCase(); // extname lấy đuôi cuối cùng
+//   if (!ext) {
+//     throw new BadRequestException('File must have a valid extension');
+//   }
+//   if (!ALLOWED_EXTENSIONS.includes(ext)) {
+//     throw new BadRequestException(
+//       `File type not allowed. Allowed: ${ALLOWED_EXTENSIONS.join(', ')}`,
+//     );
+//   }
+// }
 
 interface PicsumItem {
   id: string;
@@ -242,8 +242,6 @@ export class ImagesService {
     };
   }
 
-  // --- My images (vuln #5b: blind SQLi) ---
-
   async searchMyImages(userId: number, search?: string) {
     let images: Image[];
     if (!search) {
@@ -256,7 +254,6 @@ export class ImagesService {
       try {
         images = await this.dataSource.query(sql);
       } catch {
-        // Blind SQLi: không leak lỗi SQL, trả về rỗng để phân biệt true/false qua số lượng kết quả
         images = [];
       }
     }
@@ -265,6 +262,29 @@ export class ImagesService {
       url: this.getImageUrl(image),
     }));
   }
+
+  // async searchMyImages(userId: number, search?: string) {
+  //   let images: Image[];
+  //   if (!search) {
+  //     images = await this.imagesRepo.find({
+  //       where: { user_id: userId },
+  //       order: { created_at: 'DESC' },
+  //     });
+  //   } else {
+  //     try {
+  //       images = await this.dataSource.query(
+  //         'SELECT * FROM images WHERE user_id = ? AND title LIKE ? ORDER BY created_at DESC',
+  //         [userId, `%${search}%`],
+  //       );
+  //     } catch {
+  //       images = [];
+  //     }
+  //   }
+  //   return images.map((image) => ({
+  //     ...image,
+  //     url: this.getImageUrl(image),
+  //   }));
+  // }
 
   async remove(id: number, userId: number) {
     const image = await this.imagesRepo.findOne({ where: { id } });
@@ -284,30 +304,30 @@ export class ImagesService {
     return { deleted: true, id };
   }
 
-  // download(file: string) {
-  //   const filePath = join(this.uploadDir, file);
-  //   if (!existsSync(filePath)) {
-  //     throw new NotFoundException('File not found');
-  //   }
-  //   return new StreamableFile(createReadStream(filePath));
-  // }
-
   download(file: string) {
-    const filename = basename(file);
-    if (!filename) {
-      throw new BadRequestException('Invalid file name');
-    }
-    const filePath = resolve(join(this.uploadDir, filename));
-    const uploadDir = resolve(this.uploadDir);
-    // resolve() chuẩn hóa `..` rồi kiểm tra path vẫn nằm trong uploadDir
-    if (!filePath.startsWith(uploadDir + sep)) {
-      throw new ForbiddenException('Access denied');
-    }
+    const filePath = join(this.uploadDir, file);
     if (!existsSync(filePath)) {
       throw new NotFoundException('File not found');
     }
     return new StreamableFile(createReadStream(filePath));
   }
+
+  // download(file: string) { 
+  //   const filename = basename(file);
+  //   if (!filename) {
+  //     throw new BadRequestException('Invalid file name');
+  //   }
+  //   const filePath = resolve(join(this.uploadDir, filename));
+  //   const uploadDir = resolve(this.uploadDir);
+  //   // resolve() chuẩn hóa `..` rồi kiểm tra path vẫn nằm trong uploadDir
+  //   if (!filePath.startsWith(uploadDir + sep)) {
+  //     throw new ForbiddenException('Access denied');
+  //   }
+  //   if (!existsSync(filePath)) {
+  //     throw new NotFoundException('File not found');
+  //   }
+  //   return new StreamableFile(createReadStream(filePath));
+  // }
 
   async editImage(id: number, userId: number, dto: EditImageDto) {
     const image = await this.imagesRepo.findOne({ where: { id } });
@@ -358,7 +378,6 @@ export class ImagesService {
     };
   }
 
-
   // async editImage(id: number, userId: number, dto: EditImageDto) {
   //   const image = await this.imagesRepo.findOne({ where: { id } });
   //   if (!image) {
@@ -367,12 +386,12 @@ export class ImagesService {
   //   if (image.user_id !== userId) {
   //     throw new ForbiddenException('Access denied');
   //   }
-  
+
   //   const inputPath = this.resolveFilePath(image.filename);
   //   if (!inputPath) {
   //     throw new NotFoundException('Source file not found on disk');
   //   }
-  
+
   //   const width = Number(dto.width);
   //   const height = Number(dto.height);
   //   if (!Number.isInteger(width) || width <= 0 || width > 10000) {
@@ -386,11 +405,11 @@ export class ImagesService {
   //   if (!ALLOWED_EDIT_FORMATS.includes(format)) {
   //     throw new BadRequestException('Invalid format');
   //   }
-  
+
   //   const outputName = `edited-${Date.now()}.${format}`;
   //   const outputPath = join(this.uploadDir, outputName);
   //   const command = `${this.imagemagickCmd} "${inputPath}" -resize ${width}x${height} "${outputPath}"`;
-  
+
   //   try {
   //     await execAsync(command);
   //   } catch (error) {
@@ -400,14 +419,14 @@ export class ImagesService {
   //       detail: err.stderr ?? err.message,
   //     });
   //   }
-  
+
   //   if (!existsSync(outputPath)) {
   //     throw new BadRequestException('Output file was not created');
   //   }
-  
+
   //   image.filename = outputName;
   //   await this.imagesRepo.save(image);
-  
+
   //   return {
   //     id: image.id,
   //     filename: outputName,

@@ -20,8 +20,8 @@ export class SeedService implements OnModuleInit {
   ) {}
 
   async onModuleInit() {
-    await this.seedUser('admin@lab.local', 'admin123', Role.ADMIN, '#3b82f6');
-    await this.seedUser('user@lab.local', 'user123', Role.USER, '#10b981');
+    await this.seedUser('admin@abc.com', 'admin123', Role.ADMIN, '#3b82f6');
+    await this.seedUser('user@abc.com', 'user123', Role.USER, '#10b981');
     await this.seedExploreCache();
   }
 

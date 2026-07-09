@@ -70,6 +70,7 @@ export class ImagesController {
     FileInterceptor('file', {
       fileFilter: (_req, file, cb) => {
         try {
+          console.log(file.originalname)
           validateUploadExtension(file.originalname);
           cb(null, true);
         } catch (error) {
